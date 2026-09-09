@@ -130,7 +130,7 @@ a{color:var(--accent)}
 </style>
 </head>
 <body>
-<script type="application/json" id="ledger-state">{"settings":{"fvf":0.109,"reg":0.0035,"order":0.4,"vat":0.2,"proc":0.03,"firstMonday":"2026-09-07","slowDays":60,"partnerA":"Armando","partnerB":"Jay","usd":0.7373,"permit":74,"monthTarget":0},"plants":[],"money":[],"weeks":{},"updatedAt":0}</script>
+<script type="application/json" id="ledger-state">{"settings":{"fvf":0.109,"reg":0.0035,"order":0.4,"vat":0.2,"proc":0.03,"firstMonday":"2026-09-07","slowDays":60,"partnerA":"Armando","partnerB":"Jay","usd":0.7373,"permit":0,"monthTarget":0},"plants":[],"money":[],"weeks":{},"updatedAt":0}</script>
 
 <div class="app">
   <div class="top">
@@ -178,7 +178,7 @@ const newId = (p) => p + Date.now().toString(36) + (idCounter++).toString(36);
 // ---------- state
 const GRADES = ["KK-B","KK-A","KK-S","KK-X","KK-VAULT"];
 const CHANNELS = ["eBay","Own site","Auction","Show","Other"];
-const DEFAULTS = {fvf:0.109, reg:0.0035, order:0.4, vat:0.2, proc:0.03, firstMonday:"2026-09-07", slowDays:60, partnerA:"Armando", partnerB:"Jay", usd:0.7373, permit:74, monthTarget:0};
+const DEFAULTS = {fvf:0.109, reg:0.0035, order:0.4, vat:0.2, proc:0.03, firstMonday:"2026-09-07", slowDays:60, partnerA:"Armando", partnerB:"Jay", usd:0.7373, permit:0, monthTarget:0};
 function normalize(s){ s = s && typeof s === "object" ? s : {}; const settings = Object.assign({}, DEFAULTS, s.settings || {}); settings.partnerA = String(settings.partnerA || DEFAULTS.partnerA); settings.partnerB = String(settings.partnerB || DEFAULTS.partnerB); return { settings, plants: Array.isArray(s.plants) ? s.plants.filter((p) => p && typeof p === "object") : [], money: Array.isArray(s.money) ? s.money.filter((m) => m && typeof m === "object") : [], weeks: s.weeks && typeof s.weeks === "object" ? s.weeks : {}, updatedAt: num(s.updatedAt) }; }
 let state = (() => { try { return normalize(JSON.parse(document.getElementById("ledger-state").textContent)); } catch(e){ return normalize({}); } })();
 // the two rows the workbook was checked with (kakti_king_ledger.xlsx, recalc 2026-09-09)
@@ -194,9 +194,9 @@ const EXAMPLE = {
   plants: [
     {id:"ex1", bought:"2026-08-25", from:"dazzlet12 (eBay)", name:"Ariocarpus retusus 7 cm", grade:"KK-A", qty:1, buy:34, ask:75, sold:"2026-09-02", channel:"eBay", sale:75, delivCharged:4.5, delivCost:3.38, packaging:1.2, notes:"Example", example:true},
     {id:"ex2", bought:"2026-08-25", from:"Desert Plants Ltd", name:"Lophophora williamsii 2 to 3 cm", grade:"KK-A", qty:1, buy:29.99, ask:45, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example", example:true},
-    {id:"ex3", bought:"2026-09-02", from:"China nursery, CITES papers", name:"Lophophora williamsii f. cristata 14 cm", grade:"KK-S", qty:1, buy:442.67, ask:2500, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $500 landed = £368.67 + £74 UK import permit. List £2,500, quick £1,500", example:true},
-    {id:"ex4", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, lot", grade:"KK-A", qty:95, qty0:100, buy:3.69, ask:25, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $400 for 100 = £294.94 + £74 permit = £3.69 each", example:true},
-    {id:"ex5", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, 5 pack", grade:"KK-A", qty:5, buy:3.69, ask:15, sold:"2026-09-08", channel:"Own site", sale:75, delivCharged:0, delivCost:3.38, packaging:1.2, notes:"Example. Sold from the lot as 5 for £75", example:true, lotId:"ex4"},
+    {id:"ex3", bought:"2026-09-02", from:"China nursery, CITES papers", name:"Lophophora williamsii f. cristata 14 cm", grade:"KK-S", qty:1, buy:368.67, ask:2500, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $500 with every certificate included = £368.67. List £2,500, quick £1,500", example:true},
+    {id:"ex4", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, lot", grade:"KK-A", qty:95, qty0:100, buy:2.95, ask:25, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $400 for 100 with every certificate included = £2.95 each", example:true},
+    {id:"ex5", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, 5 pack", grade:"KK-A", qty:5, buy:2.95, ask:15, sold:"2026-09-08", channel:"Own site", sale:75, delivCharged:0, delivCost:3.38, packaging:1.2, notes:"Example. Sold from the lot as 5 for £75", example:true, lotId:"ex4"},
   ],
   money: [{id:"exm1", date:"2026-08-24", who:"Armando", amount:450, purpose:"Stock", note:"Example", example:true}, {id:"exm2", date:"2026-08-24", who:"Jay", amount:450, purpose:"Stock", note:"Example", example:true}],
 };
@@ -320,9 +320,9 @@ function selfTest(){
 
 // ---------- deal calculator (what-if, never saved)
 const PRESETS = {
-  crest: {name: "China crest, 14 cm KK-S", batch: 1, per: 1, cost: 500, cur: "$", permit: 74, list: 2500, quick: 1500, channel: "Own site", delivCharged: 0, delivCost: 12, packaging: 5},
-  singles: {name: "Thailand lot, one at £25 or 5 for £75", batch: 100, per: 1, cost: 4, cur: "$", permit: 74, list: 25, quick: 15, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
-  packs: {name: "Thailand lot, 5 for £75 per parcel", batch: 100, per: 5, cost: 4, cur: "$", permit: 74, list: 15, quick: 12, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+  crest: {name: "China crest, 14 cm KK-S", batch: 1, per: 1, cost: 500, cur: "$", permit: 0, list: 2500, quick: 1500, channel: "Own site", delivCharged: 0, delivCost: 12, packaging: 5},
+  singles: {name: "Thailand lot, one at £25 or 5 for £75", batch: 100, per: 1, cost: 4, cur: "$", permit: 0, list: 25, quick: 15, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+  packs: {name: "Thailand lot, 5 for £75 per parcel", batch: 100, per: 5, cost: 4, cur: "$", permit: 0, list: 15, quick: 12, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
 };
 let deal = Object.assign({}, PRESETS.crest);
 function dealCalc(d, s){
@@ -348,7 +348,7 @@ function render(){
   const nav = document.getElementById("tabs");
   nav.innerHTML = TABS.map((t) => `<button role="tab" aria-selected="${t === tab}" data-tab="${t}">${t}</button>`).join("");
   nav.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
-  const banner = document.getElementById("banner"); banner.hidden = !c.example; banner.innerHTML = `<span>Example data, not saved: the China crest and the Thailand lot priced on 2026-09-09. Add your first real plant or money in and it disappears.</span> <button class="btn sm" type="button" data-play>Play with this data</button>`;
+  const banner = document.getElementById("banner"); banner.hidden = !c.example; banner.innerHTML = `<span>Example data, not saved: the China crest and the Thailand lot priced on 2026-09-09, every certificate included in the supplier's price. Add your first real plant or money in and it disappears.</span> <button class="btn sm" type="button" data-play>Play with this data</button>`;
   banner.querySelectorAll("[data-play]").forEach((b) => b.addEventListener("click", () => { state.plants = EXAMPLE.plants.map((p) => { const q = Object.assign({}, p); delete q.example; q.id = newId("p"); return q; }); state.money = EXAMPLE.money.map((m) => { const q = Object.assign({}, m); delete q.example; q.id = newId("m"); return q; }); render(); persist(true); toast("Example data loaded. Edit, sell and delete as you like. Settings has Delete every row."); }));
   const view = document.getElementById("view");
   view.innerHTML = ({Dashboard: renderDashboard, Plants: renderPlants, Money: renderMoney, Weekly: renderWeekly, Monthly: renderMonthly, Settings: renderSettings}[tab])(c);
@@ -377,7 +377,7 @@ function dealCard(c){
     <div class="grid">
       ${f("batch", "Plants in the batch", "1")}${f("per", "Plants per order", "1")}
       <div><label>Cost per plant</label><div style="display:flex;gap:6px"><select name="cur" style="width:64px">${opt(["$", "£"], deal.cur)}</select><input name="cost" type="number" step="0.01" min="0" inputmode="decimal" value="${deal.cost}"></div><span class="note">$1 = £${s.usd} (Settings)</span></div>
-      ${f("permit", "Permits per batch £", "1", "UK import permit " + gbp(s.permit))}
+      ${f("permit", "Extra permits per batch £", "1", "0 when the supplier's price includes every certificate")}
       ${f("list", "List price per plant £", "0.01")}${f("quick", "Quick price per plant £", "0.01")}
       <div><label>Sold on</label><select name="channel">${opt(CHANNELS, deal.channel)}</select></div>
       ${f("delivCharged", "Delivery charged per order £", "0.01")}${f("delivCost", "Delivery cost per order £", "0.01")}${f("packaging", "Packaging per order £", "0.01")}
@@ -536,7 +536,7 @@ function renderSettings(c){
     ${f("vat", "VAT on eBay fees %", "1", (s.vat * 100).toFixed(0), "20")}
     ${f("proc", "Own site processor fee %", "0.01", (s.proc * 100).toFixed(2), "Placeholder 3. Type your provider's rate")}
     ${f("usd", "£ per $1", "0.0001", s.usd, "0.7373 on 2026-09-09")}
-    ${f("permit", "UK import permit £ per consignment", "1", s.permit, "APHA, £74 in 2026")}</div>
+    ${f("permit", "Extra permit cost £ per consignment", "1", s.permit, "0 when the supplier's price includes every certificate; APHA charges £74 if you apply yourself")}</div>
     <p class="eyebrow" style="margin-top:14px">Ledger</p><div class="grid">
     ${f("slowDays", "Slow-stock warning after (days)", "1", s.slowDays, "")}
     <div><label>First Monday of the ledger</label><input name="firstMonday" type="date" value="${esc(s.firstMonday)}" ${dis}><span class="note">Earlier rows extend the range on their own</span></div></div>
