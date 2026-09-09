@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kakti King Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#EEF0EA; --paper:#F7F8F4; --ink:#1B211D; --ink-2:#4A544D; --ink-3:#7C877F; --line:#CFD5CB;
+  --accent:#3E6B52; --accent-ink:#F4F7F2; --accent-soft:#DCE7DD;
+  --block:#9A3A2C; --block-soft:#F0DDD8; --hold:#8A6A1F; --hold-soft:#F0E7CF;
+  --input:#FFFFFF; --shadow:0 6px 24px rgba(27,33,29,.18);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#151916; --paper:#1C211D; --ink:#E7EAE3; --ink-2:#B6BEB6; --ink-3:#7F8A80; --line:#333B35;
+    --accent:#7FB08F; --accent-ink:#0F1511; --accent-soft:#25352B;
+    --block:#D97A69; --block-soft:#3A221E; --hold:#D2B25A; --hold-soft:#3A3220; --input:#11150F; --shadow:0 6px 24px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#151916; --paper:#1C211D; --ink:#E7EAE3; --ink-2:#B6BEB6; --ink-3:#7F8A80; --line:#333B35;
+  --accent:#7FB08F; --accent-ink:#0F1511; --accent-soft:#25352B;
+  --block:#D97A69; --block-soft:#3A221E; --hold:#D2B25A; --hold-soft:#3A3220; --input:#11150F; --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.app{max-width:1060px;margin:0 auto;padding:0 14px 90px}
+.top{position:sticky;top:0;z-index:5;background:var(--ground);padding-top:12px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 20px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+h1{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:-.02em;line-height:1;margin:0}
+.sub{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+.pot{text-align:right}
+.pot .label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pot .val{font-family:var(--display);font-weight:900;font-size:32px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pot .val.neg{color:var(--block)}
+nav{display:flex;gap:4px;overflow-x:auto;margin:10px 0 0;padding-bottom:10px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;font-family:var(--display);font-weight:700;font-size:14px;padding:8px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);border-radius:4px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin:10px 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);display:inline-block;flex:0 0 auto}
+.dot.live{background:var(--accent)}
+.dot.warn{background:var(--hold)}
+.banner{background:var(--hold-soft);color:var(--hold);border-left:4px solid var(--hold);padding:10px 14px;font-size:14px;margin:0 0 14px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.banner .btn{background:var(--hold);color:#fff}
+h2{font-family:var(--display);font-weight:700;font-size:20px;margin:22px 0 10px;letter-spacing:-.01em}
+h3{font-family:var(--display);font-weight:700;font-size:15px;margin:16px 0 8px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--paper);border:1px solid var(--line);padding:10px 12px;min-width:0}
+.tile .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .v{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tile .v.neg{color:var(--block)}
+.tile .v.small{font-size:16px}
+.tile .s{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:2px}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.tablewrap{overflow-x:auto;border-top:1px solid var(--ink);margin:6px 0 14px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:left;color:var(--ink-3);padding:8px 8px 6px;border-bottom:1px solid var(--line);vertical-align:bottom;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+td.neg{color:var(--block)}
+td.wrap{white-space:normal;min-width:160px}
+tr.now td{background:var(--accent-soft)}
+tr.total td{font-weight:600;background:var(--paper)}
+tr.slow td{background:var(--hold-soft)}
+tr.example td{color:var(--ink-2);font-style:italic}
+tr.best td{background:var(--accent-soft)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.pill.go{background:var(--accent-soft);color:var(--accent)}
+.pill.hold{background:var(--hold-soft);color:var(--hold)}
+.pill.stop{background:var(--block-soft);color:var(--block)}
+.pill.qty{background:var(--paper);border:1px solid var(--line);color:var(--ink-2)}
+.btn{font-family:var(--display);font-weight:700;font-size:14px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:4px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-block;line-height:1.2}
+.btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--block);border:1px solid var(--block)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.sm{font-size:12.5px;padding:5px 9px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.toolbar input,.toolbar select{width:auto;min-width:140px;flex:1 1 140px;font-size:15px;padding:7px 9px}
+form.card,.card{background:var(--paper);border:1px solid var(--line);padding:14px;margin:10px 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 12px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+input,select,textarea{width:100%;font:16px var(--body);padding:8px 9px;border:1px solid var(--line);border-radius:3px;background:var(--input);color:var(--ink)}
+textarea{font:13px var(--mono);min-height:120px}
+input.inline{width:96px;padding:5px 7px;font:14px var(--mono)}
+input.big{font:22px var(--display);font-weight:700;padding:8px 10px}
+fieldset{border:1px solid var(--line);padding:10px 12px;margin:10px 0 0;min-width:0}
+legend{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 6px}
+.note{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.err{font-family:var(--mono);font-size:12.5px;color:var(--block);margin:8px 0 0}
+.chart{overflow-x:auto;background:var(--paper);border:1px solid var(--line);padding:8px 8px 4px;margin:6px 0 14px}
+.chart svg{display:block}
+.chart text{font-family:var(--mono);font-size:10px;fill:var(--ink-3)}
+.legend{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);margin:0 0 8px}
+.legend b{color:var(--ink)}
+.empty{color:var(--ink-2);font-style:italic;padding:8px 0}
+a{color:var(--accent)}
+.cards{display:grid;gap:8px}
+.pcard{background:var(--paper);border:1px solid var(--line);padding:10px 12px;display:grid;gap:4px}
+.pcard.slow{border-left:4px solid var(--hold)}
+.pcard.example{color:var(--ink-2);font-style:italic}
+.pcard .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pcard .t b{font-family:var(--display);font-size:15px}
+.pcard .m{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.pcard .p{font-family:var(--mono);font-size:13px}
+.pcard .p b{font-size:15px}
+.only-wide{display:block}.only-narrow{display:none}
+@media (max-width:640px){ .only-wide{display:none}.only-narrow{display:block} h1{font-size:22px} .pot .val{font-size:26px} .tile .v{font-size:19px} .tiles{grid-template-columns:repeat(2,1fr)} }
+.week-card{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;align-items:end}
+.week-card .big{font-family:var(--display);font-weight:900;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.week-card .big.neg{color:var(--block)}
+.deal .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+.deal .out .tile .v{font-size:24px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 14px;border-radius:6px;font-family:var(--mono);font-size:13px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);z-index:20;max-width:92vw}
+.toast button{background:transparent;border:1px solid var(--ground);color:var(--ground);border-radius:4px;padding:4px 9px;font-family:var(--display);font-weight:700;cursor:pointer}
+.check td.ok{color:var(--accent)}.check td.bad{color:var(--block)}
+.foot{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<script type="application/json" id="ledger-state">{"settings":{"fvf":0.109,"reg":0.0035,"order":0.4,"vat":0.2,"proc":0.03,"firstMonday":"2026-09-07","slowDays":60,"partnerA":"Armando","partnerB":"Jay","usd":0.7373,"permit":74,"monthTarget":0},"plants":[],"money":[],"weeks":{},"updatedAt":0}</script>
+
+<div class="app">
+  <div class="top">
+    <header>
+      <div><h1>Kakti King Ledger</h1><div class="sub" id="sub"></div></div>
+      <div class="pot"><div class="label">Cash in the pot</div><div class="val" id="pot">£0.00</div></div>
+    </header>
+    <nav id="tabs" role="tablist"></nav>
+  </div>
+  <p class="status" aria-live="polite"><span class="dot" id="dot"></span><span id="statusText">Loading</span><span class="note" id="savedAt"></span></p>
+  <div id="banner" hidden class="banner"></div>
+  <main id="view"></main>
+  <div class="foot">Fees: eBay (sale + delivery charged) × (final value fee + regulatory fee) × (1 + VAT) + per-order fee × (1 + VAT). Own site: (sale + delivery charged) × processor fee. Profit: sale + delivery charged − quantity × buy − delivery cost − packaging − fees. Weeks run Monday to Sunday.</div>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(() => {
+"use strict";
+const SOURCE = "<!doctype html>\n" + document.documentElement.outerHTML;
+
+// ---------- dates as day numbers
+const DAY = 86400000;
+const toDay = (iso) => { if (!iso) return null; const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso); if (!m) return null; return Math.round(Date.UTC(+m[1], +m[2] - 1, +m[3]) / DAY); };
+const fromDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
+const mondayOf = (n) => n - ((n + 3) % 7);
+const monthStart = (n) => { const d = new Date(n * DAY); return Math.round(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) / DAY); };
+const monthEnd = (n) => { const d = new Date(n * DAY); return Math.round(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0) / DAY); };
+const nextMonth = (n) => { const d = new Date(n * DAY); return Math.round(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1) / DAY); };
+const todayDay = () => { const t = new Date(); return Math.round(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()) / DAY); };
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtD = (n) => { if (n == null) return ""; const d = new Date(n * DAY); return `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const fmtDs = (n) => { const d = new Date(n * DAY); return `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS[d.getUTCMonth()]}`; };
+const fmtM = (n) => { const d = new Date(n * DAY); return `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const gbp = (x) => (x == null || isNaN(x)) ? "" : (x < -0.005 ? "−" : "") + "£" + Math.abs(x).toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const num = (x) => { const v = parseFloat(x); return isNaN(v) ? 0 : v; };
+const qtyOf = (p) => (p.qty == null || p.qty === "") ? 1 : Math.max(0, Math.round(num(p.qty)));
+const qty0Of = (p) => (p.qty0 == null) ? qtyOf(p) : Math.max(0, Math.round(num(p.qty0)));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const d1 = (v) => v == null ? "" : v.toFixed(1);
+const pct = (v) => v == null ? "" : (v * 100).toFixed(1) + "%";
+let idCounter = 0;
+const newId = (p) => p + Date.now().toString(36) + (idCounter++).toString(36);
+
+// ---------- state
+const GRADES = ["KK-B","KK-A","KK-S","KK-X","KK-VAULT"];
+const CHANNELS = ["eBay","Own site","Auction","Show","Other"];
+const DEFAULTS = {fvf:0.109, reg:0.0035, order:0.4, vat:0.2, proc:0.03, firstMonday:"2026-09-07", slowDays:60, partnerA:"Armando", partnerB:"Jay", usd:0.7373, permit:74, monthTarget:0};
+function normalize(s){ s = s && typeof s === "object" ? s : {}; const settings = Object.assign({}, DEFAULTS, s.settings || {}); settings.partnerA = String(settings.partnerA || DEFAULTS.partnerA); settings.partnerB = String(settings.partnerB || DEFAULTS.partnerB); return { settings, plants: Array.isArray(s.plants) ? s.plants.filter((p) => p && typeof p === "object") : [], money: Array.isArray(s.money) ? s.money.filter((m) => m && typeof m === "object") : [], weeks: s.weeks && typeof s.weeks === "object" ? s.weeks : {}, updatedAt: num(s.updatedAt) }; }
+let state = (() => { try { return normalize(JSON.parse(document.getElementById("ledger-state").textContent)); } catch(e){ return normalize({}); } })();
+// the two rows the workbook was checked with (kakti_king_ledger.xlsx, recalc 2026-09-09)
+const TEST = {
+  plants: [
+    {id:"t1", bought:"2026-09-08", from:"dazzlet12 (eBay)", name:"Ariocarpus retusus 7 cm", grade:"KK-A", qty:1, buy:34, sold:"2026-09-16", channel:"eBay", sale:75, delivCharged:4.5, delivCost:3.38, packaging:1.2, notes:""},
+    {id:"t2", bought:"2026-09-08", from:"Desert Plants Ltd", name:"Lophophora williamsii 2 to 3 cm", grade:"KK-A", qty:1, buy:29.99, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:""},
+  ],
+  money: [{id:"tm1", date:"2026-09-08", who:"Armando", amount:150, purpose:"Stock"}, {id:"tm2", date:"2026-09-08", who:"Jay", amount:150, purpose:"Stock"}],
+};
+// what the page shows while the ledger is empty: the two deals priced on 2026-09-09 at $1 = £0.7373
+const EXAMPLE = {
+  plants: [
+    {id:"ex1", bought:"2026-08-25", from:"dazzlet12 (eBay)", name:"Ariocarpus retusus 7 cm", grade:"KK-A", qty:1, buy:34, ask:75, sold:"2026-09-02", channel:"eBay", sale:75, delivCharged:4.5, delivCost:3.38, packaging:1.2, notes:"Example", example:true},
+    {id:"ex2", bought:"2026-08-25", from:"Desert Plants Ltd", name:"Lophophora williamsii 2 to 3 cm", grade:"KK-A", qty:1, buy:29.99, ask:45, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example", example:true},
+    {id:"ex3", bought:"2026-09-02", from:"China nursery, CITES papers", name:"Lophophora williamsii f. cristata 14 cm", grade:"KK-S", qty:1, buy:442.67, ask:2500, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $500 landed = £368.67 + £74 UK import permit. List £2,500, quick £1,500", example:true},
+    {id:"ex4", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, lot", grade:"KK-A", qty:95, qty0:100, buy:3.69, ask:25, sold:"", channel:"", sale:0, delivCharged:0, delivCost:0, packaging:0, notes:"Example. $400 for 100 = £294.94 + £74 permit = £3.69 each", example:true},
+    {id:"ex5", bought:"2026-09-02", from:"Thailand nursery, CITES papers", name:"Lophophora williamsii 3 to 5 cm, 5 pack", grade:"KK-A", qty:5, buy:3.69, ask:15, sold:"2026-09-08", channel:"Own site", sale:75, delivCharged:0, delivCost:3.38, packaging:1.2, notes:"Example. Sold from the lot as 5 for £75", example:true, lotId:"ex4"},
+  ],
+  money: [{id:"exm1", date:"2026-08-24", who:"Armando", amount:450, purpose:"Stock", note:"Example", example:true}, {id:"exm2", date:"2026-08-24", who:"Jay", amount:450, purpose:"Stock", note:"Example", example:true}],
+};
+const usingExamples = () => state.plants.length === 0 && state.money.length === 0;
+
+// ---------- persistence
+let backend = {kind:"local", label:"This device only"};
+let readOnly = false, saveTimer = null, dbDoc = null, artifactNs = null, downloadsNs = null;
+const LS_KEY = "kakti-ledger-state";
+function localSave(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){} }
+function localLoad(){ try { const s = localStorage.getItem(LS_KEY); return s ? normalize(JSON.parse(s)) : null; } catch(e){ return null; } }
+function setStatus(text, cls){ document.getElementById("statusText").textContent = text; const d = document.getElementById("dot"); d.className = "dot" + (cls ? " " + cls : ""); document.getElementById("savedAt").textContent = state.updatedAt ? "· last change " + new Date(state.updatedAt).toLocaleString("en-GB", {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"}) : ""; }
+function withState(html){ const json = JSON.stringify(state).replace(/</g, "\\u003c"); return html.replace(/(<script type="application\/json" id="ledger-state">)[\s\S]*?(<\/script>)/, (m, a, b) => a + json + b); }
+function inputBusy(){ const a = document.activeElement; return a && (a.tagName === "INPUT" || a.tagName === "SELECT" || a.tagName === "TEXTAREA"); }
+async function publishNow(){
+  setStatus("Saving to the page…");
+  try { await artifactNs.publish(withState(SOURCE)); setStatus("Saved. The page reloads with the new numbers.", "live"); }
+  catch(e){
+    const code = e && e.code;
+    if (code === "conflict") setStatus("Someone else saved first. Reloading to their version.", "warn");
+    else if (code === "not_writer" || code === "not_granted" || code === "not_declared") { readOnly = true; setStatus("Read-only view. Your edits stay on this device.", "warn"); render(); }
+    else if (code === "rate_limited") setStatus("Saving too fast. Wait a moment, then change something again.", "warn");
+    else setStatus("Could not save to the page (" + (code || "error") + "). Kept on this device.", "warn");
+  }
+}
+function scheduleArtifactSave(delay){ clearTimeout(saveTimer); saveTimer = setTimeout(() => { if (inputBusy()) { scheduleArtifactSave(1500); return; } publishNow(); }, delay); }
+async function persist(immediate){
+  state.updatedAt = Date.now(); localSave();
+  if (readOnly) { setStatus("Read-only view. Your edits stay on this device.", "warn"); return; }
+  if (backend.kind === "db" && dbDoc) { try { await dbDoc.set(state); setStatus("Saved. Live for both of you.", "live"); } catch(e){ setStatus("Could not save to the shared store (" + (e && e.code || "error") + "). Kept on this device.", "warn"); } return; }
+  if (backend.kind === "artifact" && artifactNs) { if (immediate) { clearTimeout(saveTimer); await publishNow(); } else scheduleArtifactSave(2500); return; }
+  setStatus("Saved on this phone only. Settings has Send my numbers.", "warn");
+}
+async function initBackend(){
+  if (!(window.claude && typeof window.claude.use === "function")) { adoptLocal(); return; }
+  const db = await window.claude.use("db");
+  if (db) { backend = {kind:"db", label:"Live, shared"}; dbDoc = db.doc("ledger/main"); setStatus("Connecting to the shared store…"); dbDoc.onSnapshot((snap) => { if (snap.exists) { state = normalize(JSON.parse(JSON.stringify(snap.data()))); render(); } setStatus(snap.metadata.fromCache ? "Shared store (cached)." : "Live for both of you.", "live"); }, (e) => setStatus("Shared store error (" + (e && e.code || "error") + ").", "warn")); downloadsNs = await window.claude.use("downloads"); return; }
+  const art = await window.claude.use("artifact");
+  if (art) { backend = {kind:"artifact", label:"Shared through the page"}; artifactNs = art; setStatus("Shared through the page. Every save republishes it for both of you.", "live"); downloadsNs = await window.claude.use("downloads"); render(); return; }
+  downloadsNs = await window.claude.use("downloads"); adoptLocal();
+}
+function adoptLocal(){ const local = localLoad(); if (local && local.updatedAt > state.updatedAt) state = local; backend = {kind:"local", label:"This device only"}; setStatus("Saved on this phone only. Settings has Send my numbers.", "warn"); render(); }
+
+// ---------- computation (mirrors the workbook; a row may carry a quantity)
+function feesFor(gross, channel, s){ if (channel === "eBay") return gross * (s.fvf + s.reg) * (1 + s.vat) + s.order * (1 + s.vat); if (channel === "Own site") return gross * s.proc; return 0; }
+function derive(p, s, today){
+  const bought = toDay(p.bought), sold = toDay(p.sold), qty = qtyOf(p), cost = qty * num(p.buy);
+  const costBought = p.lotId ? 0 : qty0Of(p) * num(p.buy);
+  const isSold = sold != null, soldOut = !isSold && qty === 0;
+  const gross = isSold ? num(p.sale) + num(p.delivCharged) : 0;
+  const fees = isSold ? feesFor(gross, p.channel, s) : null;
+  const profit = isSold ? gross - cost - num(p.delivCost) - num(p.packaging) - fees : null;
+  const days = (isSold && bought != null) ? sold - bought : null;
+  const held = (!isSold && !soldOut && bought != null) ? Math.max(0, today - bought) : null;
+  const ask = num(p.ask) > 0 ? num(p.ask) : null;
+  return Object.assign({}, p, {qty, qty0: qty0Of(p), cost, costBought, soldOut, boughtDay: bought, soldDay: sold, isSold, gross, fees, profit, days, held, ask, askValue: (!isSold && ask != null) ? ask * qty : 0, weekBought: bought != null ? mondayOf(bought) : null, weekSold: isSold ? mondayOf(sold) : null, monthSold: isSold ? monthStart(sold) : null});
+}
+const sum = (arr, f) => arr.reduce((a, x) => a + f(x), 0);
+function avgDaysOf(rows){ const d = rows.filter((p) => p.days != null); return d.length ? sum(d, (p) => p.days * p.qty) / sum(d, (p) => p.qty) : null; }
+function computeFrom(s, plantsRaw, moneyRaw, weeksCfg, today){
+  const plants = plantsRaw.map((p) => derive(p, s, today)).sort((a, b) => (a.boughtDay ?? 0) - (b.boughtDay ?? 0) || String(a.id).localeCompare(String(b.id)));
+  const money = moneyRaw.map((m) => Object.assign({}, m, {day: toDay(m.date), amount: num(m.amount)})).sort((a, b) => (a.day ?? 0) - (b.day ?? 0) || String(a.id).localeCompare(String(b.id)));
+  const thisMonday = mondayOf(today);
+  let first = mondayOf(toDay(s.firstMonday) ?? today), last = Math.max(thisMonday, first);
+  for (const p of plants) { if (p.weekBought != null) { first = Math.min(first, p.weekBought); last = Math.max(last, p.weekBought); } if (p.weekSold != null) last = Math.max(last, p.weekSold); }
+  for (const m of money) if (m.day != null) { first = Math.min(first, mondayOf(m.day)); last = Math.max(last, mondayOf(m.day)); }
+  const weeks = []; let cash = 0;
+  for (let w = first; w <= last; w += 7) {
+    const key = fromDay(w), cfg = weeksCfg[key] || {};
+    const moneyIn = sum(money.filter((m) => m.day != null && mondayOf(m.day) === w), (m) => m.amount);
+    const stockBought = sum(plants.filter((p) => p.weekBought === w), (p) => p.costBought);
+    const soldP = plants.filter((p) => p.weekSold === w);
+    const sales = sum(soldP, (p) => p.gross), cogs = sum(soldP, (p) => p.cost), delivPack = sum(soldP, (p) => num(p.delivCost) + num(p.packaging)), fees = sum(soldP, (p) => p.fees);
+    const profit = sales - cogs - delivPack - fees;
+    const reinvest = num(cfg.reinvest), split = cfg.split == null ? 0.5 : num(cfg.split), remainder = profit - reinvest;
+    const shareA = remainder > 0 ? remainder * split : 0, shareB = remainder > 0 ? remainder * (1 - split) : 0;
+    cash += moneyIn - stockBought + sales - delivPack - fees - shareA - shareB;
+    weeks.push({key, start: w, end: w + 6, moneyIn, stockBought, sold: sum(soldP, (p) => p.qty), orders: soldP.length, sales, cogs, delivPack, fees, profit, reinvest, split, remainder, shareA, shareB, avgDays: avgDaysOf(soldP), cash, now: w === thisMonday});
+  }
+  const months = [];
+  for (let m = monthStart(first), mEnd = monthStart(last); m <= mEnd; m = nextMonth(m)) {
+    const end = monthEnd(m), soldP = plants.filter((p) => p.monthSold === m);
+    const sales = sum(soldP, (p) => p.gross), cogs = sum(soldP, (p) => p.cost), delivPack = sum(soldP, (p) => num(p.delivCost) + num(p.packaging)), fees = sum(soldP, (p) => p.fees);
+    const inWeeks = weeks.filter((w) => w.start >= m && w.start <= end);
+    const onHand = plants.filter((p) => p.boughtDay != null && p.boughtDay <= end && !p.soldOut && (!p.isSold || p.soldDay > end));
+    months.push({start: m, end, moneyIn: sum(money.filter((x) => x.day != null && monthStart(x.day) === m), (x) => x.amount), stockBought: sum(plants.filter((p) => p.boughtDay != null && p.boughtDay >= m && p.boughtDay <= end), (p) => p.costBought), sold: sum(soldP, (p) => p.qty), sales, cogs, delivPack, fees, profit: sales - cogs - delivPack - fees, reinvest: sum(inWeeks, (w) => w.reinvest), shareA: sum(inWeeks, (w) => w.shareA), shareB: sum(inWeeks, (w) => w.shareB), onHand: sum(onHand, (p) => p.cost), onHandCount: sum(onHand, (p) => p.qty), avgDays: avgDaysOf(soldP), now: m === monthStart(today)});
+  }
+  const sold = plants.filter((p) => p.isSold), inStock = plants.filter((p) => !p.isSold && !p.soldOut);
+  const soldQty = sum(sold, (p) => p.qty), inStockQty = sum(inStock, (p) => p.qty);
+  const withAsk = inStock.filter((p) => p.ask != null);
+  const thisMonth = months.find((m) => m.now) || null;
+  const tiles = {
+    thisWeek: weeks.find((w) => w.now) || null, thisMonth, cash: weeks.length ? weeks[weeks.length - 1].cash : 0,
+    moneyIn: sum(money, (m) => m.amount), sales: sum(sold, (p) => p.gross), profit: sum(sold, (p) => p.profit),
+    reinvested: sum(weeks, (w) => w.reinvest), paidA: sum(weeks, (w) => w.shareA), paidB: sum(weeks, (w) => w.shareB),
+    inA: sum(money.filter((m) => m.who === s.partnerA), (m) => m.amount), inB: sum(money.filter((m) => m.who === s.partnerB), (m) => m.amount),
+    soldCount: soldQty, orders: sold.length, inStockCount: inStockQty, stockValue: sum(inStock, (p) => p.cost),
+    askValue: sum(withAsk, (p) => p.askValue), askCost: sum(withAsk, (p) => p.cost), askQty: sum(withAsk, (p) => p.qty),
+    slow: sum(inStock.filter((p) => p.held != null && p.held > s.slowDays), (p) => p.qty),
+    avgDays: avgDaysOf(sold), avgProfit: soldQty ? sum(sold, (p) => p.profit) / soldQty : null,
+    margin: sum(sold, (p) => p.gross) ? sum(sold, (p) => p.profit) / sum(sold, (p) => p.gross) : null,
+  };
+  const grades = GRADES.map((g) => { const gs = sold.filter((p) => p.grade === g), gi = inStock.filter((p) => p.grade === g), q = sum(gs, (p) => p.qty), avgDays = avgDaysOf(gs), avgProfit = q ? sum(gs, (p) => p.profit) / q : null; return {grade: g, inStock: sum(gi, (p) => p.qty), stockValue: sum(gi, (p) => p.cost), askValue: sum(gi, (p) => p.askValue), sold: q, avgDays, avgProfit, profit: sum(gs, (p) => p.profit), score: (q && avgProfit != null && avgProfit > 0) ? avgProfit / Math.max(avgDays ?? 1, 1) : null}; });
+  let best = null; for (const g of grades) if (g.score != null && (best == null || g.score > best.score)) best = g; if (best) best.best = true;
+  const channels = CHANNELS.map((c) => { const cs = sold.filter((p) => p.channel === c), sales = sum(cs, (p) => p.gross), fees = sum(cs, (p) => p.fees); return {channel: c, sold: sum(cs, (p) => p.qty), orders: cs.length, sales, fees, profit: sum(cs, (p) => p.profit), feeShare: sales ? fees / sales : null}; });
+  const vendorMap = new Map();
+  for (const p of plants) { const k = (p.from || "Unknown").trim() || "Unknown"; if (!vendorMap.has(k)) vendorMap.set(k, {vendor: k, bought: 0, spend: 0, inStock: 0, sold: 0, sales: 0, profit: 0}); const v = vendorMap.get(k); if (!p.lotId) { v.bought += p.qty0; v.spend += p.costBought; } if (p.isSold) { v.sold += p.qty; v.sales += p.gross; v.profit += p.profit; } else v.inStock += p.qty; }
+  const vendors = [...vendorMap.values()].sort((a, b) => b.profit - a.profit || b.spend - a.spend || a.vendor.localeCompare(b.vendor));
+  const ageing = [["0 to 30 days", 0, 30], ["31 to 60 days", 31, 60], ["61 to 90 days", 61, 90], ["over 90 days", 91, Infinity]].map(([label, lo, hi]) => { const rows = inStock.filter((p) => p.held != null && p.held >= lo && p.held <= hi); return {label, qty: sum(rows, (p) => p.qty), value: sum(rows, (p) => p.cost)}; });
+  const topSales = sold.slice().sort((a, b) => b.profit - a.profit || String(a.id).localeCompare(String(b.id))).slice(0, 5);
+  const recent = weeks.slice(-8);
+  return {plants, money, weeks, months, tiles, grades, channels, vendors, ageing, topSales, recent, today, thisMonday};
+}
+function compute(){ const ex = usingExamples(); const c = computeFrom(state.settings, ex ? EXAMPLE.plants : state.plants, ex ? EXAMPLE.money : state.money, state.weeks, todayDay()); c.example = ex; return c; }
+function selfTest(){
+  const c = computeFrom(DEFAULTS, TEST.plants, TEST.money, {}, toDay("2026-09-20"));
+  const p1 = c.plants.find((p) => p.id === "t1"), w1 = c.weeks.find((w) => w.key === "2026-09-07"), w2 = c.weeks.find((w) => w.key === "2026-09-14"), m1 = c.months[0];
+  const near = (a, b) => a != null && Math.abs(a - b) < 0.005;
+  return [["Fees on the example sale", p1 && p1.fees, 11.2125], ["Profit on the example sale", p1 && p1.profit, 29.7075], ["Days to sell", p1 && p1.days, 8], ["Week 07 Sep money in", w1 && w1.moneyIn, 300], ["Week 07 Sep stock bought", w1 && w1.stockBought, 63.99], ["Week 14 Sep sales", w2 && w2.sales, 79.5], ["Week 14 Sep profit", w2 && w2.profit, 29.7075], ["Week 14 Sep each share", w2 && w2.shareA, 14.85375], ["Cash in the pot", c.tiles.cash, 270.01], ["Sep stock on hand at month end", m1 && m1.onHand, 29.99], ["Sep plants in stock at month end", m1 && m1.onHandCount, 1]].map(([label, got, want]) => ({label, got, want, ok: near(got, want)}));
+}
+
+// ---------- deal calculator (what-if, never saved)
+const PRESETS = {
+  crest: {name: "China crest, 14 cm KK-S", batch: 1, per: 1, cost: 500, cur: "$", permit: 74, list: 2500, quick: 1500, channel: "Own site", delivCharged: 0, delivCost: 12, packaging: 5},
+  singles: {name: "Thailand lot, sold one at a time", batch: 100, per: 1, cost: 4, cur: "$", permit: 74, list: 25, quick: 20, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+  packs: {name: "Thailand lot, sold as 5 packs", batch: 100, per: 5, cost: 4, cur: "$", permit: 74, list: 15, quick: 12, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+};
+let deal = Object.assign({}, PRESETS.crest);
+function dealCalc(d, s){
+  const batch = Math.max(1, Math.round(num(d.batch))), per = Math.min(batch, Math.max(1, Math.round(num(d.per))));
+  const unitCost = num(d.cost) * (d.cur === "$" ? s.usd : 1) + num(d.permit) / batch;
+  const orders = batch / per;
+  const one = (price) => { const gross = price * per + num(d.delivCharged); const fees = feesFor(gross, d.channel, s); const profit = gross - unitCost * per - num(d.delivCost) - num(d.packaging) - fees; return {gross, fees, profit, perPlant: profit / per, margin: gross ? profit / gross : null, batch: profit * orders}; };
+  return {batch, per, unitCost, orders, landed: unitCost * batch, list: one(num(d.list)), quick: one(num(d.quick))};
+}
+
+// ---------- rendering
+const TABS = ["Dashboard","Plants","Money","Weekly","Monthly","Settings"];
+let tab = (() => { try { return localStorage.getItem("kakti-tab") || "Dashboard"; } catch(e){ return "Dashboard"; } })();
+let editing = null, editingMoney = null, sellFrom = null, formError = "", plantFilter = "all", plantSearch = "", undoTimer = null, checkRows = null;
+function setTab(t){ tab = t; try { localStorage.setItem("kakti-tab", t); } catch(e){} editing = null; editingMoney = null; sellFrom = null; formError = ""; render(); window.scrollTo({top: 0}); }
+function cls(v){ return v < -0.005 ? "num neg" : "num"; }
+function td(v, fmt){ return `<td class="${cls(v)}">${fmt(v)}</td>`; }
+function tile(k, v, fmt, neg, sub, bar){ const val = fmt(v); return `<div class="tile"><div class="k">${esc(k)}</div><div class="v${neg && v < -0.005 ? " neg" : ""}${String(val).length > 11 ? " small" : ""}">${val === "" ? "–" : val}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ""}${bar != null ? `<div class="bar"><i style="width:${Math.max(0, Math.min(100, bar * 100)).toFixed(1)}%"></i></div>` : ""}</div>`; }
+function render(){
+  const c = compute(), s = state.settings;
+  const pot = document.getElementById("pot"); pot.textContent = gbp(c.tiles.cash); pot.className = "val" + (c.tiles.cash < -0.005 ? " neg" : "");
+  document.getElementById("sub").textContent = `${s.partnerA} & ${s.partnerB} · week of ${fmtD(c.thisMonday)}`;
+  const nav = document.getElementById("tabs");
+  nav.innerHTML = TABS.map((t) => `<button role="tab" aria-selected="${t === tab}" data-tab="${t}">${t}</button>`).join("");
+  nav.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+  const banner = document.getElementById("banner"); banner.hidden = !c.example; banner.innerHTML = `<span>Example data, not saved: the China crest and the Thailand lot priced on 2026-09-09. Add your first real plant or money in and it disappears.</span> <button class="btn sm" type="button" data-play>Play with this data</button>`;
+  banner.querySelectorAll("[data-play]").forEach((b) => b.addEventListener("click", () => { state.plants = EXAMPLE.plants.map((p) => { const q = Object.assign({}, p); delete q.example; q.id = newId("p"); return q; }); state.money = EXAMPLE.money.map((m) => { const q = Object.assign({}, m); delete q.example; q.id = newId("m"); return q; }); render(); persist(true); toast("Example data loaded. Edit, sell and delete as you like. Settings has Delete every row."); }));
+  const view = document.getElementById("view");
+  view.innerHTML = ({Dashboard: renderDashboard, Plants: renderPlants, Money: renderMoney, Weekly: renderWeekly, Monthly: renderMonthly, Settings: renderSettings}[tab])(c);
+  bind(view, c);
+}
+function chartScale(weeks){ let max = 0; for (const w of weeks) max = Math.max(max, Math.abs(w.profit), Math.abs(w.cash)); return {max: max || 100}; }
+function chart(weeks){
+  const H = 170, top = 14, bottom = 26, colW = 30, left = 52, right = 8, {max} = chartScale(weeks);
+  const k = (H - top - bottom) / 2 / max, zero = top + (H - top - bottom) / 2, W = left + right + weeks.length * colW;
+  const bars = weeks.map((w, i) => { const x = left + i * colW + 5, h = Math.abs(w.profit) * k, y = w.profit >= 0 ? zero - h : zero; return `<rect x="${x}" y="${y.toFixed(2)}" width="${colW - 10}" height="${h.toFixed(2)}" fill="${w.profit >= 0 ? "var(--accent)" : "var(--block)"}"><title>Week of ${fmtDs(w.start)}: profit ${gbp(w.profit)}, cash ${gbp(w.cash)}</title></rect>`; }).join("");
+  const pts = weeks.map((w, i) => [(left + i * colW + colW / 2).toFixed(1), (zero - w.cash * k).toFixed(2)]);
+  const now = weeks.findIndex((w) => w.now);
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly profit bars and cash line">${now >= 0 ? `<rect x="${left + now * colW}" y="${top}" width="${colW}" height="${H - top - bottom}" fill="var(--accent-soft)" opacity="0.7"/>` : ""}<line x1="${left}" y1="${zero}" x2="${W - right}" y2="${zero}" stroke="var(--line)"/><text x="${left - 6}" y="${top + 4}" text-anchor="end">${gbp(max)}</text><text x="${left - 6}" y="${zero + 3}" text-anchor="end">£0</text><text x="${left - 6}" y="${H - bottom}" text-anchor="end">${gbp(-max)}</text>${bars}<polyline points="${pts.map((p) => p.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>${pts.map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="2" fill="var(--ink)"/>`).join("")}${weeks.map((w, i) => (i % 2 === 0 || weeks.length < 10) ? `<text x="${left + i * colW + colW / 2}" y="${H - 8}" text-anchor="middle">${fmtDs(w.start)}</text>` : "").join("")}</svg>`;
+}
+function ageBars(ageing){
+  const max = Math.max(1, ...ageing.map((a) => a.qty));
+  return `<div class="tablewrap"><table><thead><tr><th>Held for</th><th class="num">Plants</th><th class="num">At buy price</th><th style="width:40%">Share, width ∝ plants</th></tr></thead><tbody>${ageing.map((a, i) => `<tr><td>${a.label}</td><td class="num">${a.qty}</td>${td(a.value, gbp)}<td><div class="bar" style="margin:0"><i style="width:${(a.qty / max * 100).toFixed(1)}%;background:${i >= 2 ? "var(--hold)" : "var(--accent)"}"></i></div></td></tr>`).join("")}</tbody></table></div>`;
+}
+function dealCard(c){
+  const s = state.settings, r = dealCalc(deal, s);
+  const opt = (list, v) => list.map((x) => `<option${x === v ? " selected" : ""}>${x}</option>`).join("");
+  const f = (k, label, step, hint) => `<div><label>${label}</label><input name="${k}" type="number" step="${step}" min="0" inputmode="decimal" value="${deal[k]}">${hint ? `<span class="note">${esc(hint)}</span>` : ""}</div>`;
+  const col = (t, x) => `<div class="tile"><div class="k">${t} · per order</div><div class="v${x.profit < 0 ? " neg" : ""}">${gbp(x.profit)}</div><div class="s">gross ${gbp(x.gross)} · fees ${gbp(x.fees)} · margin ${pct(x.margin)}</div><div class="s">${r.per > 1 ? "per plant " + gbp(x.perPlant) + " · " : ""}whole batch ${gbp(x.batch)} over ${r.orders % 1 ? r.orders.toFixed(1) : r.orders} orders</div></div>`;
+  return `<form class="card deal" id="dealForm"><p class="eyebrow">Deal check · what-if, never saved</p>
+    <div class="row" style="margin-top:0">${Object.entries(PRESETS).map(([k, p]) => `<button class="btn sm ghost" type="button" data-preset="${k}">${esc(p.name)}</button>`).join("")}</div>
+    <div class="grid">
+      ${f("batch", "Plants in the batch", "1")}${f("per", "Plants per order", "1")}
+      <div><label>Cost per plant</label><div style="display:flex;gap:6px"><select name="cur" style="width:64px">${opt(["$", "£"], deal.cur)}</select><input name="cost" type="number" step="0.01" min="0" inputmode="decimal" value="${deal.cost}"></div><span class="note">$1 = £${s.usd} (Settings)</span></div>
+      ${f("permit", "Permits per batch £", "1", "UK import permit " + gbp(s.permit))}
+      ${f("list", "List price per plant £", "0.01")}${f("quick", "Quick price per plant £", "0.01")}
+      <div><label>Sold on</label><select name="channel">${opt(CHANNELS, deal.channel)}</select></div>
+      ${f("delivCharged", "Delivery charged per order £", "0.01")}${f("delivCost", "Delivery cost per order £", "0.01")}${f("packaging", "Packaging per order £", "0.01")}
+    </div>
+    <p class="note" style="margin-top:10px">Landed cost ${gbp(r.landed)} for ${r.batch} plant${r.batch > 1 ? "s" : ""} = ${gbp(r.unitCost)} each, permits included.</p>
+    <div class="out">${col("List", r.list)}${col("Quick", r.quick)}</div></form>`;
+}
+function welcome(){ let seen = false; try { seen = localStorage.getItem("kakti-welcomed") === "1"; } catch(e){} if (seen) return ""; return `<div class="card" id="welcome"><p class="eyebrow">How this works</p><p style="margin:0 0 8px">Three taps run the whole thing.</p><ol style="margin:0 0 10px;padding-left:20px"><li><b>Plants</b>: Add plant the day you buy it. Mark sold the day it sells. A lot is one row with a quantity; Sell some splits a sale off it.</li><li><b>Money</b>: Add money in each time either of you puts cash in.</li><li><b>Weekly</b>: on Sunday, type Reinvest £ and the split %. Both shares and the cash in the pot follow.</li></ol><p class="note">Fees, profit, days to sell, and every total compute on the spot. Nothing here needs a formula.</p><div class="row"><button class="btn sm" type="button" data-welcome-ok>Got it</button></div></div>`; }
+function renderDashboard(c){
+  const s = state.settings, t = c.tiles, w = t.thisWeek || {sold:0, sales:0, profit:0, moneyIn:0, stockBought:0, remainder:0}, m = t.thisMonth;
+  const target = num(s.monthTarget);
+  return `${welcome()}
+  <p class="eyebrow">This week · ${fmtD(c.thisMonday)} to ${fmtD(c.thisMonday + 6)}</p>
+  <div class="tiles">${tile("Plants sold", w.sold, String)}${tile("Sales", w.sales, gbp)}${tile("Profit", w.profit, gbp, true)}${tile("Money in", w.moneyIn, gbp)}${tile("Stock bought", w.stockBought, gbp)}${tile("Remainder to split", w.remainder, gbp, true)}</div>
+  <p class="eyebrow" style="margin-top:18px">This month${m ? " · " + fmtM(m.start) : ""}</p>
+  <div class="tiles">${tile("Profit", m ? m.profit : 0, gbp, true, target > 0 ? "target " + gbp(target) : "set a target in Settings", target > 0 && m ? m.profit / target : null)}${tile("Plants sold", m ? m.sold : 0, String)}${tile("Sales", m ? m.sales : 0, gbp)}${tile("Margin to date", t.margin, pct, false, "profit ÷ sales")}</div>
+  <p class="eyebrow" style="margin-top:18px">Stock</p>
+  <div class="tiles">${tile("In stock", t.inStockCount, String, false, t.slow ? t.slow + " slow, over " + s.slowDays + " days" : "none slow")}${tile("Stock at buy price", t.stockValue, gbp)}${tile("Stock at asking price", t.askValue, gbp, false, t.askQty + " plants carry an asking price")}${tile("Profit if it all sells at asking", t.askValue - t.askCost, gbp, true, "before fees and delivery")}${tile("Avg days to sell", t.avgDays, d1)}${tile("Avg profit per plant", t.avgProfit, gbp, true)}</div>
+  <p class="eyebrow" style="margin-top:18px">To date</p>
+  <div class="tiles">${tile("Money in", t.moneyIn, gbp)}${tile("Sales", t.sales, gbp, false, t.orders + " orders, " + t.soldCount + " plants")}${tile("Profit", t.profit, gbp, true)}${tile("Reinvested", t.reinvested, gbp)}${tile("Paid to " + s.partnerA, t.paidA, gbp, false, "put in " + gbp(t.inA))}${tile("Paid to " + s.partnerB, t.paidB, gbp, false, "put in " + gbp(t.inB))}</div>
+  <h2>Deal check</h2>
+  ${dealCard(c)}
+  <h2>Week by week</h2>
+  <p class="legend">Bars: profit per week, height ∝ £, full height = <b>${gbp(chartScale(c.weeks).max)}</b>. Line: cash in the pot, same scale. Green band: this week.</p>
+  <div class="chart">${chart(c.weeks)}</div>
+  <h2>Where the next pound goes</h2>
+  <p class="note">Score = average profit per plant ÷ average days to sell. The highest score takes the next pound.</p>
+  <div class="tablewrap"><table><thead><tr><th>Grade</th><th class="num">In stock</th><th class="num">At buy</th><th class="num">At asking</th><th class="num">Sold</th><th class="num">Avg days</th><th class="num">Avg profit</th><th class="num">Total profit</th><th class="num">Score</th></tr></thead><tbody>
+  ${c.grades.map((g) => `<tr class="${g.best ? "best" : ""}"><td><b>${g.grade}</b>${g.best ? ' <span class="pill go">next pound</span>' : ""}</td><td class="num">${g.inStock}</td>${td(g.stockValue, gbp)}${td(g.askValue, gbp)}<td class="num">${g.sold}</td><td class="num">${d1(g.avgDays)}</td>${td(g.avgProfit, gbp)}${td(g.profit, gbp)}<td class="num">${g.score == null ? "" : g.score.toFixed(2)}</td></tr>`).join("")}
+  </tbody></table></div>
+  <h2>Stock ageing</h2>
+  ${ageBars(c.ageing)}
+  <h2>By channel</h2>
+  <div class="tablewrap"><table><thead><tr><th>Sold on</th><th class="num">Orders</th><th class="num">Plants</th><th class="num">Sales</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">Fee share</th></tr></thead><tbody>
+  ${c.channels.map((h) => `<tr><td><b>${h.channel}</b></td><td class="num">${h.orders}</td><td class="num">${h.sold}</td>${td(h.sales, gbp)}${td(h.fees, gbp)}${td(h.profit, gbp)}<td class="num">${pct(h.feeShare)}</td></tr>`).join("")}
+  </tbody></table></div>
+  <h2>By vendor</h2>
+  <div class="tablewrap"><table><thead><tr><th>Bought from</th><th class="num">Plants bought</th><th class="num">Spend</th><th class="num">In stock</th><th class="num">Sold</th><th class="num">Sales</th><th class="num">Profit</th></tr></thead><tbody>
+  ${c.vendors.length ? c.vendors.map((v) => `<tr><td class="wrap"><b>${esc(v.vendor)}</b></td><td class="num">${v.bought}</td>${td(v.spend, gbp)}<td class="num">${v.inStock}</td><td class="num">${v.sold}</td>${td(v.sales, gbp)}${td(v.profit, gbp)}</tr>`).join("") : `<tr><td colspan="7" class="empty">No vendors yet.</td></tr>`}
+  </tbody></table></div>
+  <h2>Best sales</h2>
+  <div class="tablewrap"><table><thead><tr><th>Item</th><th>Sold</th><th>On</th><th class="num">Sale</th><th class="num">Profit</th><th class="num">Days</th></tr></thead><tbody>
+  ${c.topSales.length ? c.topSales.map((p) => `<tr><td class="wrap"><b>${esc(p.name)}</b>${p.qty > 1 ? ` <span class="pill qty">×${p.qty}</span>` : ""}</td><td>${fmtD(p.soldDay)}</td><td>${esc(p.channel)}</td>${td(p.gross, gbp)}${td(p.profit, gbp)}<td class="num">${p.days ?? ""}</td></tr>`).join("") : `<tr><td colspan="6" class="empty">No sales yet.</td></tr>`}
+  </tbody></table></div>`;
+}
+
+function plantForm(p, mode){
+  // mode: "new" | "edit" | "sell" (mark a single row sold) | "split" (sell part of a lot)
+  const s = state.settings;
+  p = p || {bought: fromDay(todayDay()), grade: "KK-A", channel: "Own site", qty: 1};
+  const split = mode === "split";
+  if ((mode === "sell" || split) && !p.sold) p = Object.assign({}, p, {sold: fromDay(todayDay()), channel: p.channel || "Own site"});
+  const opt = (list, v) => list.map((x) => `<option${x === v ? " selected" : ""}>${x}</option>`).join("");
+  const remaining = qtyOf(p);
+  return `<form class="card" id="plantForm" data-id="${esc(p.id || "")}" data-mode="${mode}" novalidate>
+    ${split ? `<p class="eyebrow">Sell from the lot · ${esc(p.name)} · ${remaining} left</p>` : ""}
+    <div class="grid">
+      ${split ? `<div><label>Plants in this sale</label><input name="qtySold" type="number" step="1" min="1" max="${remaining}" inputmode="numeric" value="${Math.min(remaining, 5)}" required></div>` : `<div><label>Date bought</label><input name="bought" type="date" value="${esc(p.bought || "")}" required></div>
+      <div><label>Bought from</label><input name="from" value="${esc(p.from || "")}" placeholder="vendor" autocomplete="off"></div>
+      <div><label>Item name</label><input name="name" value="${esc(p.name || "")}" placeholder="species, size" required autocomplete="off"></div>
+      <div><label>Grade</label><select name="grade">${opt(GRADES, p.grade)}</select></div>
+      <div><label>Quantity</label><input name="qty" type="number" step="1" min="0" inputmode="numeric" value="${qtyOf(p)}" required><span class="note">a lot is one row with a quantity</span></div>
+      <div><label>Buy price per plant £</label><input name="buy" type="number" step="0.01" min="0" inputmode="decimal" value="${p.buy ?? ""}" required><span class="note">landed: permits and shipping in</span></div>
+      <div><label>Asking price per plant £</label><input name="ask" type="number" step="0.01" min="0" inputmode="decimal" value="${p.ask || ""}"><span class="note">what you list it at</span></div>`}
+    </div>
+    <fieldset><legend>${split ? "This sale" : "Sale (leave the date empty while in stock)"}</legend><div class="grid">
+      <div><label>Sale date</label><input name="sold" type="date" value="${esc(p.sold || "")}"></div>
+      <div><label>Sold on</label><select name="channel">${opt(CHANNELS, p.channel)}</select></div>
+      <div><label>Sale price £, this order</label><input name="sale" type="number" step="0.01" min="0" inputmode="decimal" value="${split ? "" : (p.sale || "")}"></div>
+      <div><label>Delivery charged £</label><input name="delivCharged" type="number" step="0.01" min="0" inputmode="decimal" value="${split ? "" : (p.delivCharged || "")}"></div>
+      <div><label>Delivery cost £</label><input name="delivCost" type="number" step="0.01" min="0" inputmode="decimal" value="${split ? "" : (p.delivCost || "")}"></div>
+      <div><label>Packaging £</label><input name="packaging" type="number" step="0.01" min="0" inputmode="decimal" value="${split ? "" : (p.packaging || "")}"></div>
+    </div></fieldset>
+    <div class="grid" style="margin-top:10px"><div style="grid-column:1/-1"><label>Notes</label><input name="notes" value="${split ? "" : esc(p.notes || "")}" autocomplete="off"></div></div>
+    ${formError ? `<p class="err">${esc(formError)}</p>` : ""}
+    <div class="row" style="margin-top:12px"><button class="btn" type="submit">${split ? "Record the sale" : (p.id ? "Save plant" : "Add plant")}</button><button class="btn ghost" type="button" data-cancel>Cancel</button>${p.id && !split ? `<button class="btn danger" type="button" data-delete="${esc(p.id)}">Delete</button>` : ""}</div>
+  </form>`;
+}
+function statusPill(p, s){ if (p.soldOut) return `<span class="pill qty">Lot, all sold</span>`; return p.isSold ? `<span class="pill go">Sold</span>` : `<span class="pill ${p.held > s.slowDays ? "stop" : "hold"}">In stock${p.held != null ? " · " + p.held + "d" : ""}</span>`; }
+function actions(p){ if (p.example) return ""; const sell = (p.isSold || p.soldOut) ? "" : (p.qty > 1 ? ` <button class="btn sm" data-split="${esc(p.id)}">Sell some</button>` : ` <button class="btn sm" data-sell="${esc(p.id)}">Mark sold</button>`); return `<button class="btn sm ghost" data-edit="${esc(p.id)}">Edit</button>${sell}`; }
+function plantRow(p, s){
+  return `<tr class="${p.example ? "example" : ""}${(!p.isSold && p.held > s.slowDays) ? " slow" : ""}"><td class="wrap"><b>${esc(p.name)}</b>${p.qty > 1 || p.qty0 > 1 ? ` <span class="pill qty">${p.qty0 > p.qty ? p.qty + " of " + p.qty0 : "×" + p.qty}</span>` : ""}${p.notes ? `<br><span class="note">${esc(p.notes)}</span>` : ""}</td><td><span class="pill ${p.grade === "KK-B" ? "hold" : "go"}">${esc(p.grade)}</span></td><td>${statusPill(p, s)}</td><td>${fmtD(p.boughtDay)}</td><td>${esc(p.from)}</td>${td(num(p.buy), gbp)}${td(p.cost, gbp)}<td class="num">${p.ask != null ? gbp(p.ask) : ""}</td><td>${fmtD(p.soldDay)}</td><td>${p.isSold ? esc(p.channel) : ""}</td>${p.isSold ? td(p.gross, gbp) : "<td></td>"}${p.isSold ? td(p.fees, gbp) : "<td></td>"}${p.isSold ? td(p.profit, gbp) : "<td></td>"}<td class="num">${p.days ?? ""}</td><td>${actions(p)}</td></tr>`;
+}
+function plantCard(p, s){
+  const line2 = p.isSold ? `Sold ${fmtD(p.soldDay)} on ${esc(p.channel)} · ${p.days ?? "?"} days` : `Bought ${fmtD(p.boughtDay)}${p.from ? " from " + esc(p.from) : ""}`;
+  const money = p.isSold ? `<div class="p">Cost ${gbp(p.cost)} → sale ${gbp(p.gross)} − fees ${gbp(p.fees)} = <b class="${p.profit < 0 ? "neg" : ""}">${gbp(p.profit)}</b></div>` : `<div class="p">Buy <b>${gbp(num(p.buy))}</b>${p.qty > 1 ? " each, " + gbp(p.cost) + " the lot" : ""}${p.ask != null ? " · asking " + gbp(p.ask) : ""}</div>`;
+  const act = p.example ? "" : `<div class="row" style="margin:4px 0 0">${actions(p)}</div>`;
+  return `<div class="pcard${(!p.isSold && p.held > s.slowDays) ? " slow" : ""}${p.example ? " example" : ""}"><div class="t"><b>${esc(p.name)}${p.qty > 1 ? ` <span class="pill qty">×${p.qty}</span>` : ""}</b><span class="pill ${p.grade === "KK-B" ? "hold" : "go"}">${esc(p.grade)}</span></div><div class="m">${statusPill(p, s)} · ${line2}</div>${money}${p.notes ? `<div class="m">${esc(p.notes)}</div>` : ""}${act}</div>`;
+}
+function renderPlants(c){
+  const s = state.settings;
+  let rows = c.plants.slice().sort((a, b) => (b.boughtDay ?? 0) - (a.boughtDay ?? 0) || String(b.id).localeCompare(String(a.id)));
+  if (plantFilter === "stock") rows = rows.filter((p) => !p.isSold && !p.soldOut); else if (plantFilter === "sold") rows = rows.filter((p) => p.isSold); else if (plantFilter === "slow") rows = rows.filter((p) => !p.isSold && p.held > s.slowDays);
+  const q = plantSearch.trim().toLowerCase();
+  if (q) rows = rows.filter((p) => [p.name, p.from, p.grade, p.notes, p.channel].some((x) => String(x || "").toLowerCase().includes(q)));
+  let form = "";
+  if (sellFrom) form = plantForm(state.plants.find((p) => p.id === sellFrom), "split");
+  else if (editing === "new") form = plantForm(null, "new");
+  else if (editing) { const p = state.plants.find((x) => x.id === editing.id); if (p) form = plantForm(p, editing.mode); }
+  const list = rows.length ? `<div class="only-wide tablewrap"><table><thead><tr><th>Item</th><th>Grade</th><th>Status</th><th>Bought</th><th>From</th><th class="num">Buy each</th><th class="num">Cost</th><th class="num">Asking</th><th>Sold</th><th>On</th><th class="num">Sale</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">Days</th><th></th></tr></thead><tbody>${rows.map((p) => plantRow(p, s)).join("")}</tbody></table></div><div class="only-narrow cards">${rows.map((p) => plantCard(p, s)).join("")}</div>` : `<p class="empty">${c.plants.length ? "Nothing matches." : "No plants yet. Add the first one the day you buy it."}</p>`;
+  return `<div class="toolbar"><button class="btn" data-new-plant ${readOnly ? "disabled" : ""}>Add plant</button><select id="plantFilter"><option value="all"${plantFilter === "all" ? " selected" : ""}>All rows (${c.plants.length})</option><option value="stock"${plantFilter === "stock" ? " selected" : ""}>In stock (${c.tiles.inStockCount})</option><option value="sold"${plantFilter === "sold" ? " selected" : ""}>Sold (${c.tiles.soldCount})</option><option value="slow"${plantFilter === "slow" ? " selected" : ""}>Slow stock (${c.tiles.slow})</option></select><input id="plantSearch" type="search" placeholder="Search name, vendor, grade" value="${esc(plantSearch)}" autocomplete="off"></div>
+  <p class="note">${c.tiles.inStockCount} in stock at ${gbp(c.tiles.stockValue)} buy price, ${gbp(c.tiles.askValue)} at asking · ${c.tiles.soldCount} sold in ${c.tiles.orders} orders · avg ${d1(c.tiles.avgDays) || "–"} days to sell</p>${form}${list}`;
+}
+function moneyForm(m){
+  const s = state.settings; m = m || {date: fromDay(todayDay()), who: s.partnerA, purpose: "Stock"};
+  const opt = (list, v) => list.map((x) => `<option${x === v ? " selected" : ""}>${x}</option>`).join("");
+  return `<form class="card" id="moneyForm" data-id="${esc(m.id || "")}" novalidate><div class="grid">
+    <div><label>Date</label><input name="date" type="date" value="${esc(m.date || "")}" required></div>
+    <div><label>Who</label><select name="who">${opt([s.partnerA, s.partnerB], m.who)}</select></div>
+    <div><label>Amount £</label><input name="amount" type="number" step="0.01" min="0" inputmode="decimal" value="${m.amount ?? ""}" required></div>
+    <div><label>Purpose</label><select name="purpose">${opt(["Stock","Growth"], m.purpose)}</select></div>
+    <div style="grid-column:1/-1"><label>Note</label><input name="note" value="${esc(m.note || "")}" autocomplete="off"></div></div>
+    ${formError ? `<p class="err">${esc(formError)}</p>` : ""}
+    <div class="row" style="margin-top:12px"><button class="btn" type="submit">${m.id ? "Save" : "Add money in"}</button><button class="btn ghost" type="button" data-cancel>Cancel</button>${m.id ? `<button class="btn danger" type="button" data-delete-money="${esc(m.id)}">Delete</button>` : ""}</div></form>`;
+}
+function renderMoney(c){
+  const s = state.settings, rows = c.money.slice().reverse();
+  const form = editingMoney ? moneyForm(editingMoney === "new" ? null : state.money.find((m) => m.id === editingMoney)) : "";
+  const list = rows.length ? `<div class="only-wide tablewrap"><table><thead><tr><th>Date</th><th>Who</th><th class="num">Amount</th><th>Purpose</th><th>Note</th><th></th></tr></thead><tbody>${rows.map((m) => `<tr class="${m.example ? "example" : ""}"><td>${fmtD(m.day)}</td><td><b>${esc(m.who)}</b></td>${td(m.amount, gbp)}<td>${esc(m.purpose)}</td><td class="wrap">${esc(m.note)}</td><td>${m.example ? "" : `<button class="btn sm ghost" data-edit-money="${esc(m.id)}">Edit</button>`}</td></tr>`).join("")}</tbody></table></div><div class="only-narrow cards">${rows.map((m) => `<div class="pcard${m.example ? " example" : ""}"><div class="t"><b>${esc(m.who)} · ${gbp(m.amount)}</b><span class="pill ${m.purpose === "Growth" ? "go" : "hold"}">${esc(m.purpose)}</span></div><div class="m">${fmtD(m.day)}${m.note ? " · " + esc(m.note) : ""}</div>${m.example ? "" : `<div class="row" style="margin:4px 0 0"><button class="btn sm ghost" data-edit-money="${esc(m.id)}">Edit</button></div>`}</div>`).join("")}</div>` : `<p class="empty">Nothing in yet.</p>`;
+  return `<div class="toolbar"><button class="btn" data-new-money ${readOnly ? "disabled" : ""}>Add money in</button></div>
+  <div class="tiles" style="margin-bottom:12px">${tile(s.partnerA + " put in", c.tiles.inA, gbp, false, "taken out " + gbp(c.tiles.paidA))}${tile(s.partnerB + " put in", c.tiles.inB, gbp, false, "taken out " + gbp(c.tiles.paidB))}${tile("Total in", c.tiles.moneyIn, gbp)}${tile("Cash in the pot", c.tiles.cash, gbp, true)}</div>${form}${list}`;
+}
+function renderWeekly(c){
+  const s = state.settings, tot = (k) => sum(c.weeks, (w) => w[k]), tw = c.tiles.thisWeek;
+  const thisCard = tw ? `<div class="card"><p class="eyebrow">This week · ${fmtD(tw.start)} to ${fmtD(tw.end)}</p><div class="week-card">
+      <div><label>Profit this week</label><div class="big${tw.profit < -0.005 ? " neg" : ""}">${gbp(tw.profit)}</div></div>
+      <div><label>Reinvest £</label><input class="big" type="number" step="0.01" min="0" inputmode="decimal" data-week="${tw.key}" data-field="reinvest" value="${tw.reinvest || ""}" placeholder="0" ${readOnly ? "disabled" : ""}></div>
+      <div><label>${esc(s.partnerA)} %</label><input class="big" type="number" step="1" min="0" max="100" inputmode="numeric" data-week="${tw.key}" data-field="split" value="${Math.round(tw.split * 100)}" ${readOnly ? "disabled" : ""}></div>
+      <div><label>Remainder</label><div class="big${tw.remainder < -0.005 ? " neg" : ""}">${gbp(tw.remainder)}</div></div>
+      <div><label>${esc(s.partnerA)} takes</label><div class="big">${gbp(tw.shareA)}</div></div>
+      <div><label>${esc(s.partnerB)} takes</label><div class="big">${gbp(tw.shareB)}</div></div>
+    </div><p class="note" style="margin-top:10px">Decide together at the end of the week. A negative remainder pays nobody; the loss stays in the pot.</p></div>` : "";
+  return `${thisCard}
+  <div class="tablewrap"><table><thead><tr><th>Week</th><th class="num">Money in</th><th class="num">Stock bought</th><th class="num">Plants sold</th><th class="num">Sales</th><th class="num">Cost of goods</th><th class="num">Deliv + pack</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">Reinvest £</th><th class="num">Remainder</th><th class="num">${esc(s.partnerA)} %</th><th class="num">${esc(s.partnerA)}</th><th class="num">${esc(s.partnerB)}</th><th class="num">Avg days</th><th class="num">Cash</th></tr></thead><tbody>
+  ${c.weeks.map((w) => `<tr class="${w.now ? "now" : ""}"><td><b>${fmtDs(w.start)}</b> to ${fmtDs(w.end)}</td>${td(w.moneyIn, gbp)}${td(w.stockBought, gbp)}<td class="num">${w.sold}</td>${td(w.sales, gbp)}${td(w.cogs, gbp)}${td(w.delivPack, gbp)}${td(w.fees, gbp)}${td(w.profit, gbp)}<td class="num"><input class="inline" type="number" step="0.01" min="0" inputmode="decimal" data-week="${w.key}" data-field="reinvest" value="${w.reinvest || ""}" placeholder="0" ${readOnly ? "disabled" : ""}></td>${td(w.remainder, gbp)}<td class="num"><input class="inline" type="number" step="1" min="0" max="100" inputmode="numeric" data-week="${w.key}" data-field="split" value="${Math.round(w.split * 100)}" ${readOnly ? "disabled" : ""}></td>${td(w.shareA, gbp)}${td(w.shareB, gbp)}<td class="num">${d1(w.avgDays)}</td>${td(w.cash, gbp)}</tr>`).join("")}
+  <tr class="total"><td>Total</td>${td(tot("moneyIn"), gbp)}${td(tot("stockBought"), gbp)}<td class="num">${tot("sold")}</td>${td(tot("sales"), gbp)}${td(tot("cogs"), gbp)}${td(tot("delivPack"), gbp)}${td(tot("fees"), gbp)}${td(tot("profit"), gbp)}${td(tot("reinvest"), gbp)}${td(tot("remainder"), gbp)}<td></td>${td(tot("shareA"), gbp)}${td(tot("shareB"), gbp)}<td class="num">${d1(c.tiles.avgDays)}</td>${td(c.tiles.cash, gbp)}</tr>
+  </tbody></table></div><p class="note">Cash = money in − stock bought + sales − delivery and packaging − fees − payouts, running week by week.</p>`;
+}
+function renderMonthly(c){
+  const s = state.settings, tot = (k) => sum(c.months, (m) => m[k]);
+  return `<div class="tablewrap"><table><thead><tr><th>Month</th><th class="num">Money in</th><th class="num">Stock bought</th><th class="num">Plants sold</th><th class="num">Sales</th><th class="num">Cost of goods</th><th class="num">Deliv + pack</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">Reinvest</th><th class="num">${esc(s.partnerA)}</th><th class="num">${esc(s.partnerB)}</th><th class="num">Stock on hand</th><th class="num">In stock</th><th class="num">Avg days</th></tr></thead><tbody>
+  ${c.months.map((m) => `<tr class="${m.now ? "now" : ""}"><td><b>${fmtM(m.start)}</b></td>${td(m.moneyIn, gbp)}${td(m.stockBought, gbp)}<td class="num">${m.sold}</td>${td(m.sales, gbp)}${td(m.cogs, gbp)}${td(m.delivPack, gbp)}${td(m.fees, gbp)}${td(m.profit, gbp)}${td(m.reinvest, gbp)}${td(m.shareA, gbp)}${td(m.shareB, gbp)}${td(m.onHand, gbp)}<td class="num">${m.onHandCount}</td><td class="num">${d1(m.avgDays)}</td></tr>`).join("")}
+  <tr class="total"><td>Total</td>${td(tot("moneyIn"), gbp)}${td(tot("stockBought"), gbp)}<td class="num">${tot("sold")}</td>${td(tot("sales"), gbp)}${td(tot("cogs"), gbp)}${td(tot("delivPack"), gbp)}${td(tot("fees"), gbp)}${td(tot("profit"), gbp)}${td(tot("reinvest"), gbp)}${td(tot("shareA"), gbp)}${td(tot("shareB"), gbp)}<td></td><td></td><td></td></tr>
+  </tbody></table></div><p class="note">Stock on hand at month end = buy price of every plant bought by then and not sold by then.</p>`;
+}
+function renderSettings(c){
+  const s = state.settings, dis = readOnly ? "disabled" : "";
+  const f = (k, label, step, v, hint, type) => `<div><label>${label}</label><input name="${k}" type="${type || "number"}" step="${step}" inputmode="decimal" value="${esc(v)}" ${dis}>${hint ? `<span class="note">${esc(hint)}</span>` : ""}</div>`;
+  const check = checkRows ? `<div class="tablewrap check"><table><thead><tr><th>Check</th><th class="num">Ledger</th><th class="num">Workbook</th><th>Result</th></tr></thead><tbody>${checkRows.map((r) => `<tr><td>${esc(r.label)}</td><td class="num">${typeof r.got === "number" ? (Number.isInteger(r.want) ? r.got : r.got.toFixed(4)) : "–"}</td><td class="num">${r.want}</td><td class="${r.ok ? "ok" : "bad"}">${r.ok ? "PASS" : "FAIL"}</td></tr>`).join("")}</tbody></table></div><p class="note">${checkRows.filter((r) => r.ok).length} of ${checkRows.length} match the workbook kakti_king_ledger.xlsx (recalc 2026-09-09).</p>` : "";
+  return `<form class="card" id="settingsForm" novalidate><p class="eyebrow">Partners</p><div class="grid">
+    ${f("partnerA", "Partner A", "", s.partnerA, "takes the split % you type each week", "text")}${f("partnerB", "Partner B", "", s.partnerB, "takes the rest", "text")}${f("monthTarget", "Monthly profit target £", "1", s.monthTarget, "0 = no target")}</div>
+    <p class="eyebrow" style="margin-top:14px">Fees and rates</p><div class="grid">
+    ${f("fvf", "eBay final value fee %", "0.01", (s.fvf * 100).toFixed(2), "Garden & Patio, business seller: 10.9")}
+    ${f("reg", "eBay regulatory fee %", "0.01", (s.reg * 100).toFixed(2), "0.35")}
+    ${f("order", "eBay per-order fee £", "0.01", s.order, "0.40 on orders over £10")}
+    ${f("vat", "VAT on eBay fees %", "1", (s.vat * 100).toFixed(0), "20")}
+    ${f("proc", "Own site processor fee %", "0.01", (s.proc * 100).toFixed(2), "Placeholder 3. Type your provider's rate")}
+    ${f("usd", "£ per $1", "0.0001", s.usd, "0.7373 on 2026-09-09")}
+    ${f("permit", "UK import permit £ per consignment", "1", s.permit, "APHA, £74 in 2026")}</div>
+    <p class="eyebrow" style="margin-top:14px">Ledger</p><div class="grid">
+    ${f("slowDays", "Slow-stock warning after (days)", "1", s.slowDays, "")}
+    <div><label>First Monday of the ledger</label><input name="firstMonday" type="date" value="${esc(s.firstMonday)}" ${dis}><span class="note">Earlier rows extend the range on their own</span></div></div>
+    ${formError ? `<p class="err">${esc(formError)}</p>` : ""}
+    <div class="row" style="margin-top:12px"><button class="btn" type="submit" ${dis}>Save settings</button></div></form>
+  <h2>Check the maths</h2>
+  <p class="note">Runs the two workbook rows through this page and compares 11 numbers with kakti_king_ledger.xlsx.</p>
+  <div class="row"><button class="btn ghost" data-check>Run the check</button></div>${check}
+  <h2>Storage</h2>
+  <p class="note">${esc(backend.label)}${readOnly ? " · read-only view" : ""} · ${state.plants.length} plant rows, ${state.money.length} money rows, ${Object.keys(state.weeks).length} weeks with a split set. Fee sources read 2026-09-09: eBay UK fee calculator, eBay UK seller announcements.</p>
+  <h2>Export</h2>
+  <div class="row"><button class="btn ghost" data-csv="plants">Plants CSV</button><button class="btn ghost" data-csv="money">Money in CSV</button><button class="btn ghost" data-csv="weekly">Weekly CSV</button><button class="btn ghost" data-csv="backup">Backup (JSON)</button><span class="note" id="csvNote">${downloadsNs ? "" : "File saves are not available in this view. Use the backup text below."}</span></div>
+  <h2>Send my numbers</h2>
+  <p class="note">Your rows travel as one block of text. Send it to your partner; they paste it below on their phone and the ledger matches.</p>
+  <div class="row"><button class="btn" data-share>Send my numbers</button><button class="btn ghost" data-showbackup>Show the text</button><span class="note" id="shareNote"></span></div>
+  <div id="backupBox" hidden><textarea id="backupText" readonly></textarea></div>
+  <h2>Receive numbers</h2>
+  <div class="row" style="align-items:stretch;flex-direction:column"><textarea id="pasteBox" placeholder="Paste the text your partner sent you" ${dis}></textarea><div class="row"><button class="btn ghost" data-restore-text ${dis}>Load the pasted numbers</button><label class="btn ghost" for="restoreFile" style="margin:0">Or restore from a backup file</label><input id="restoreFile" type="file" accept="application/json,.json" style="display:none" ${dis}></div></div>
+  <h2>Danger</h2>
+  <div class="row"><button class="btn danger" data-wipe ${dis}>Delete every row</button><span class="note">Asks twice. Settings stay.</span></div>`;
+}
+
+// ---------- events
+function readForm(form){ const o = {}; new FormData(form).forEach((v, k) => { o[k] = v; }); return o; }
+function toast(text, undoFn){
+  const t = document.getElementById("toast");
+  t.innerHTML = `<span>${esc(text)}</span>${undoFn ? '<button type="button" id="undoBtn">Undo</button>' : ""}`;
+  t.hidden = false; clearTimeout(undoTimer);
+  if (undoFn) t.querySelector("#undoBtn").addEventListener("click", () => { t.hidden = true; undoFn(); });
+  undoTimer = setTimeout(() => { t.hidden = true; }, 8000);
+}
+function openPlant(mode, id, focus){ editing = id ? {id, mode} : "new"; sellFrom = null; formError = ""; render(); focusForm(focus || "name"); }
+function bind(view, c){
+  const s = state.settings;
+  view.querySelectorAll("[data-new-plant]").forEach((b) => b.addEventListener("click", () => openPlant("new", null, "name")));
+  view.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", () => openPlant("edit", b.dataset.edit, "name")));
+  view.querySelectorAll("[data-sell]").forEach((b) => b.addEventListener("click", () => openPlant("sell", b.dataset.sell, "sale")));
+  view.querySelectorAll("[data-split]").forEach((b) => b.addEventListener("click", () => { sellFrom = b.dataset.split; editing = null; formError = ""; render(); focusForm("qtySold"); }));
+  view.querySelectorAll("[data-new-money]").forEach((b) => b.addEventListener("click", () => { editingMoney = "new"; formError = ""; render(); focusForm("amount", "#moneyForm"); }));
+  view.querySelectorAll("[data-edit-money]").forEach((b) => b.addEventListener("click", () => { editingMoney = b.dataset.editMoney; formError = ""; render(); }));
+  view.querySelectorAll("[data-cancel]").forEach((b) => b.addEventListener("click", () => { editing = null; editingMoney = null; sellFrom = null; formError = ""; render(); }));
+  const pfl = view.querySelector("#plantFilter"); if (pfl) pfl.addEventListener("change", () => { plantFilter = pfl.value; render(); });
+  const psr = view.querySelector("#plantSearch"); if (psr) psr.addEventListener("input", () => { plantSearch = psr.value; const pos = psr.selectionStart; render(); const n = document.getElementById("plantSearch"); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch(e){} } });
+  const df = view.querySelector("#dealForm");
+  if (df) {
+    const refresh = () => { const v = readForm(df); Object.assign(deal, {batch: v.batch, per: v.per, cost: v.cost, cur: v.cur, permit: v.permit, list: v.list, quick: v.quick, channel: v.channel, delivCharged: v.delivCharged, delivCost: v.delivCost, packaging: v.packaging}); const active = document.activeElement, name = active && active.name; render(); if (name) { const n = document.querySelector(`#dealForm [name="${name}"]`); if (n) { n.focus(); } } };
+    df.addEventListener("input", (e) => { if (e.target.tagName === "SELECT") return; clearTimeout(df._t); df._t = setTimeout(refresh, 350); });
+    df.addEventListener("change", (e) => { if (e.target.tagName === "SELECT") refresh(); });
+    df.addEventListener("submit", (e) => e.preventDefault());
+    df.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { deal = Object.assign({}, PRESETS[b.dataset.preset]); render(); document.getElementById("dealForm").scrollIntoView({block: "start"}); }));
+  }
+  const pf = view.querySelector("#plantForm");
+  if (pf) {
+    pf.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = readForm(pf), mode = pf.dataset.mode;
+      if (mode === "split") {
+        const lot = state.plants.find((x) => x.id === pf.dataset.id); if (!lot) { sellFrom = null; render(); return; }
+        const n = Math.round(num(v.qtySold)), left = qtyOf(lot), sold = toDay(v.sold);
+        if (!(n >= 1 && n <= left)) formError = `Give a number of plants between 1 and ${left}.`;
+        else if (sold == null) formError = "Give the sale date.";
+        else if (toDay(lot.bought) != null && sold < toDay(lot.bought)) formError = "The sale date is before the buy date.";
+        else if (v.sale === "") formError = "Give the sale price for this order.";
+        else formError = "";
+        if (formError) { render(); return; }
+        const row = {id: newId("p"), lotId: lot.id, bought: lot.bought, from: lot.from, name: lot.name + (n > 1 ? ` (${n} pack)` : " (from the lot)"), grade: lot.grade, qty: n, buy: num(lot.buy), ask: num(lot.ask), sold: v.sold, channel: v.channel, sale: num(v.sale), delivCharged: num(v.delivCharged), delivCost: num(v.delivCost), packaging: num(v.packaging), notes: v.notes.trim()};
+        const before = JSON.parse(JSON.stringify(state.plants));
+        if (lot.qty0 == null) lot.qty0 = left; lot.qty = left - n;
+        state.plants.push(row); sellFrom = null; render(); persist(true);
+        toast(left - n ? `Sale recorded. ${left - n} left in the lot.` : "Sale recorded. The lot is sold out.", () => { state.plants = before; render(); persist(true); });
+        return;
+      }
+      const id = pf.dataset.id || newId("p"), bought = toDay(v.bought), sold = toDay(v.sold), qty = Math.round(num(v.qty)), old = state.plants.find((x) => x.id === id);
+      if (!v.name.trim()) formError = "Give the plant a name.";
+      else if (bought == null) formError = "Give the date you bought it.";
+      else if (!(qty >= 1) && !(old && old.qty0 != null && qty === 0)) formError = "Quantity must be 1 or more.";
+      else if (v.buy === "" || num(v.buy) < 0) formError = "Give the buy price per plant (0 is fine for a gift or a pup).";
+      else if (v.sold && sold == null) formError = "The sale date is not a date.";
+      else if (sold != null && sold < bought) formError = "The sale date is before the buy date.";
+      else if (sold != null && v.sale === "") formError = "Give the sale price.";
+      else formError = "";
+      if (formError) { render(); return; }
+      const p = Object.assign({}, old || {}, {id, bought: v.bought, from: v.from.trim(), name: v.name.trim(), grade: v.grade, qty, buy: num(v.buy), ask: num(v.ask), sold: v.sold || "", channel: v.sold ? v.channel : "", sale: num(v.sale), delivCharged: num(v.delivCharged), delivCost: num(v.delivCost), packaging: num(v.packaging), notes: v.notes.trim()});
+      const i = state.plants.findIndex((x) => x.id === id);
+      if (i >= 0) state.plants[i] = p; else state.plants.push(p);
+      editing = null; render(); persist(true); toast(i >= 0 ? "Plant saved." : "Plant added.");
+    });
+    pf.querySelectorAll("[data-delete]").forEach((b) => b.addEventListener("click", () => {
+      const id = b.dataset.delete, gone = state.plants.find((x) => x.id === id);
+      if (!gone || !confirm("Delete this row?")) return;
+      state.plants = state.plants.filter((x) => x.id !== id); editing = null; render(); persist(true);
+      toast("Row deleted.", () => { state.plants.push(gone); render(); persist(true); });
+    }));
+  }
+  const mf = view.querySelector("#moneyForm");
+  if (mf) {
+    mf.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = readForm(mf), id = mf.dataset.id || newId("m");
+      if (toDay(v.date) == null) formError = "Give the date."; else if (v.amount === "" || num(v.amount) <= 0) formError = "Give the amount."; else formError = "";
+      if (formError) { render(); return; }
+      const m = {id, date: v.date, who: v.who, amount: num(v.amount), purpose: v.purpose, note: v.note.trim()};
+      const i = state.money.findIndex((x) => x.id === id);
+      if (i >= 0) state.money[i] = m; else state.money.push(m);
+      editingMoney = null; render(); persist(true); toast(i >= 0 ? "Saved." : "Money in added.");
+    });
+    mf.querySelectorAll("[data-delete-money]").forEach((b) => b.addEventListener("click", () => {
+      const id = b.dataset.deleteMoney, gone = state.money.find((x) => x.id === id);
+      if (!gone || !confirm("Delete this row?")) return;
+      state.money = state.money.filter((x) => x.id !== id); editingMoney = null; render(); persist(true);
+      toast("Row deleted.", () => { state.money.push(gone); render(); persist(true); });
+    }));
+  }
+  view.querySelectorAll("input[data-week]").forEach((inp) => inp.addEventListener("change", () => {
+    const key = inp.dataset.week, field = inp.dataset.field, cfg = Object.assign({}, state.weeks[key] || {});
+    if (field === "reinvest") cfg.reinvest = Math.max(0, num(inp.value)); else cfg.split = Math.min(100, Math.max(0, num(inp.value))) / 100;
+    state.weeks[key] = cfg; render(); persist(false);
+  }));
+  const sf = view.querySelector("#settingsForm");
+  if (sf) sf.addEventListener("submit", (e) => {
+    e.preventDefault(); const v = readForm(sf);
+    if (!v.partnerA.trim() || !v.partnerB.trim()) { formError = "Both partners need a name."; render(); return; }
+    if (toDay(v.firstMonday) == null) { formError = "The first Monday is not a date."; render(); return; }
+    formError = "";
+    const oldA = s.partnerA, oldB = s.partnerB, newA = v.partnerA.trim(), newB = v.partnerB.trim();
+    for (const m of state.money) { if (m.who === oldA) m.who = newA; else if (m.who === oldB) m.who = newB; }
+    state.settings = {fvf: num(v.fvf) / 100, reg: num(v.reg) / 100, order: num(v.order), vat: num(v.vat) / 100, proc: num(v.proc) / 100, usd: num(v.usd) || DEFAULTS.usd, permit: Math.max(0, num(v.permit)), monthTarget: Math.max(0, num(v.monthTarget)), slowDays: Math.max(0, Math.round(num(v.slowDays))), firstMonday: fromDay(mondayOf(toDay(v.firstMonday))), partnerA: newA, partnerB: newB};
+    render(); persist(true); toast("Settings saved.");
+  });
+  view.querySelectorAll("[data-welcome-ok]").forEach((b) => b.addEventListener("click", () => { try { localStorage.setItem("kakti-welcomed", "1"); } catch(e){} render(); }));
+  view.querySelectorAll("[data-check]").forEach((b) => b.addEventListener("click", () => { checkRows = selfTest(); render(); }));
+  view.querySelectorAll("[data-showbackup]").forEach((b) => b.addEventListener("click", () => { const box = view.querySelector("#backupBox"); box.hidden = !box.hidden; view.querySelector("#backupText").value = JSON.stringify(state); }));
+  view.querySelectorAll("[data-share]").forEach((b) => b.addEventListener("click", async () => {
+    const note = view.querySelector("#shareNote"), text = JSON.stringify(state);
+    const title = "Kakti King ledger, " + state.plants.length + " plant rows";
+    try { if (navigator.share) { await navigator.share({title, text}); note.textContent = "Sent."; return; } } catch(e){ if (e && e.name === "AbortError") { note.textContent = "Not sent."; return; } }
+    try { await navigator.clipboard.writeText(text); note.textContent = "Copied. Paste it into a message to your partner."; return; } catch(e){}
+    const box = view.querySelector("#backupBox"); box.hidden = false; view.querySelector("#backupText").value = text; view.querySelector("#backupText").select(); note.textContent = "Copy the text below and send it.";
+  }));
+  view.querySelectorAll("[data-restore-text]").forEach((b) => b.addEventListener("click", () => {
+    const raw = view.querySelector("#pasteBox").value.trim(); if (!raw) { toast("Paste the text first."); return; }
+    try { const next = normalize(JSON.parse(raw)); if (!confirm(`Replace this ledger with the pasted numbers? They hold ${next.plants.length} plant rows and ${next.money.length} money rows.`)) return; state = next; render(); persist(true); toast("Numbers loaded."); } catch(e){ toast("That text is not a ledger backup."); }
+  }));
+  const rf = view.querySelector("#restoreFile");
+  if (rf) rf.addEventListener("change", () => {
+    const file = rf.files && rf.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { try { const next = normalize(JSON.parse(String(reader.result))); if (!confirm(`Replace the ledger with this backup? It holds ${next.plants.length} plant rows and ${next.money.length} money rows.`)) return; state = next; render(); persist(true); toast("Backup restored."); } catch(e){ toast("That file is not a ledger backup."); } };
+    reader.readAsText(file);
+  });
+  view.querySelectorAll("[data-csv]").forEach((b) => b.addEventListener("click", async () => {
+    const note = view.querySelector("#csvNote"), which = b.dataset.csv;
+    if (!downloadsNs) { note.textContent = "File saves are not available in this view. Use the backup text below."; return; }
+    const q = (x) => `"${String(x ?? "").replace(/"/g, '""')}"`;
+    let rows, name, data;
+    if (which === "backup") { name = "kakti_ledger_backup.json"; data = JSON.stringify(state, null, 1); }
+    else {
+      if (which === "plants") { name = "kakti_plants.csv"; rows = [["date_bought","bought_from","item","grade","qty","buy_each","cost","asking_each","sale_date","sold_on","sale","delivery_charged","delivery_cost","packaging","fees","profit","days_to_sell","status","notes"]].concat(c.plants.map((p) => [p.bought, p.from, p.name, p.grade, p.qty, num(p.buy), p.cost, p.ask ?? "", p.sold, p.channel, p.isSold ? num(p.sale) : "", p.isSold ? num(p.delivCharged) : "", p.isSold ? num(p.delivCost) : "", p.isSold ? num(p.packaging) : "", p.fees ?? "", p.profit ?? "", p.days ?? "", p.isSold ? "Sold" : "In stock", p.notes])); }
+      else if (which === "money") { name = "kakti_money_in.csv"; rows = [["date","who","amount","purpose","note"]].concat(c.money.map((m) => [m.date, m.who, m.amount, m.purpose, m.note])); }
+      else { name = "kakti_weekly.csv"; rows = [["week_start","week_end","money_in","stock_bought","plants_sold","sales","cost_of_goods","delivery_packaging","fees","profit","reinvest","remainder",s.partnerA.toLowerCase() + "_split",s.partnerA.toLowerCase(),s.partnerB.toLowerCase(),"avg_days","cash"]].concat(c.weeks.map((w) => [w.key, fromDay(w.end), w.moneyIn, w.stockBought, w.sold, w.sales, w.cogs, w.delivPack, w.fees, w.profit, w.reinvest, w.remainder, w.split, w.shareA, w.shareB, w.avgDays ?? "", w.cash])); }
+      data = rows.map((r) => r.map((x) => typeof x === "number" ? (Math.round(x * 100) / 100).toString() : q(x)).join(",")).join("\r\n");
+    }
+    b.disabled = true;
+    try { const r = await downloadsNs.save({filename: name, data}); note.textContent = r.status === "saved" ? "Saved " + name + "." : "Delivered."; }
+    catch(e){ note.textContent = e && e.code === "declined" ? "Not saved." : "Save unavailable here (" + (e && e.code || "error") + ")."; }
+    finally { b.disabled = false; }
+  }));
+  view.querySelectorAll("[data-wipe]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete every plant and money row?") || !confirm("Last chance. Delete everything?")) return;
+    const keep = {plants: state.plants, money: state.money, weeks: state.weeks};
+    state.plants = []; state.money = []; state.weeks = {}; render(); persist(true);
+    toast("Everything deleted.", () => { Object.assign(state, keep); render(); persist(true); });
+  }));
+}
+function focusForm(field, formSel){ const el = document.querySelector(`${formSel || "#plantForm"} [name="${field}"]`); if (el) { el.focus(); el.scrollIntoView({block: "center"}); } }
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && (editing || editingMoney || sellFrom)) { editing = null; editingMoney = null; sellFrom = null; formError = ""; render(); } });
+
+render();
+initBackend();
+})();
+</script>
+</body>
+</html>
