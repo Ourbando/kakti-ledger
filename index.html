@@ -321,8 +321,8 @@ function selfTest(){
 // ---------- deal calculator (what-if, never saved)
 const PRESETS = {
   crest: {name: "China crest, 14 cm KK-S", batch: 1, per: 1, cost: 500, cur: "$", permit: 74, list: 2500, quick: 1500, channel: "Own site", delivCharged: 0, delivCost: 12, packaging: 5},
-  singles: {name: "Thailand lot, sold one at a time", batch: 100, per: 1, cost: 4, cur: "$", permit: 74, list: 25, quick: 20, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
-  packs: {name: "Thailand lot, sold as 5 packs", batch: 100, per: 5, cost: 4, cur: "$", permit: 74, list: 15, quick: 12, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+  singles: {name: "Thailand lot, one at £25 or 5 for £75", batch: 100, per: 1, cost: 4, cur: "$", permit: 74, list: 25, quick: 15, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
+  packs: {name: "Thailand lot, 5 for £75 per parcel", batch: 100, per: 5, cost: 4, cur: "$", permit: 74, list: 15, quick: 12, channel: "Own site", delivCharged: 0, delivCost: 3.38, packaging: 1.2},
 };
 let deal = Object.assign({}, PRESETS.crest);
 function dealCalc(d, s){
