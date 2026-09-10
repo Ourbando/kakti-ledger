@@ -17,5 +17,22 @@
    "sizes": "512x512",
    "type": "image/png"
   }
+ ],
+ "shortcuts": [
+  {
+   "name": "Sold a plant",
+   "short_name": "Sold",
+   "url": "./?wiz=sell"
+  },
+  {
+   "name": "Bought a plant",
+   "short_name": "Bought",
+   "url": "./?wiz=buy"
+  },
+  {
+   "name": "Money went in",
+   "short_name": "Money in",
+   "url": "./?wiz=money"
+  }
  ]
 }
