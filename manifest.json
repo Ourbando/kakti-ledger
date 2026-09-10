@@ -1,6 +1,6 @@
 {
- "name": "Kakti King Ledger",
- "short_name": "Kakti",
+ "name": "Kakti Hub",
+ "short_name": "Kakti Hub",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
